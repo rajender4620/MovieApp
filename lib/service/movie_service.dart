@@ -5,7 +5,8 @@ import 'package:http/http.dart' as http;
 import 'package:movies_app/models/MovieDetails.dart';
 
 class MovieService {
-  List<String> ids = [];
+  List<String> ids = List.empty(growable: true);
+  Map<String, dynamic> resDate = {};
   Future<Map<String, dynamic>> fetchData({int page = 1}) async {
     final url = Uri.parse(
         'https://moviesdatabase.p.rapidapi.com/titles/x/upcoming?page=$page');
@@ -18,6 +19,7 @@ class MovieService {
       final response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
+        resDate = jsonDecode(response.body);
         return jsonDecode(response.body)!;
       }
     } catch (e) {
@@ -26,9 +28,9 @@ class MovieService {
     return {};
   }
 
-  List<MovieDetails> fetchMovieDetails() {
+   List<MovieDetails>  fetchMovieDetails() {
     final movieData = GetIt.I<Map<String, dynamic>>(instanceName: 'movieData');
-    return (movieData['results'] as List<dynamic>).map((e) {
+    return  (movieData['results'] as List<dynamic>).map((e) {
       final title = e['titleText']['text'];
       final String? imageLink = e['primaryImage']?['url'];
       final movieType = e['titleType']['text'];
